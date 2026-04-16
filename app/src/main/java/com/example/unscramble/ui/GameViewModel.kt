@@ -16,12 +16,14 @@
 
 package com.example.unscramble.ui
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.example.unscramble.data.MAX_NO_OF_WORDS
 import com.example.unscramble.data.SCORE_INCREASE
+import com.example.unscramble.data.WordDataDinamis
 import com.example.unscramble.data.allWords
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,6 +35,23 @@ import kotlinx.coroutines.flow.update
  */
 class GameViewModel : ViewModel() {
 
+    private lateinit var repository: WordDataDinamis
+    private lateinit var allWords: MutableList<String>
+
+    fun initRepository(context: Context) {
+        repository = WordDataDinamis(context)
+        allWords = repository.getWords()
+        resetGame()
+    }
+
+    //Tambah kata
+    fun addNewWord(word: String) {
+        if (word.isNotBlank()) {
+            repository.addWord(word)
+            allWords = repository.getWords()
+        }
+    }
+
     // Game UI state
     private val _uiState = MutableStateFlow(GameUiState())
     val uiState: StateFlow<GameUiState> = _uiState.asStateFlow()
@@ -43,10 +62,6 @@ class GameViewModel : ViewModel() {
     // Set of words used in the game
     private var usedWords: MutableSet<String> = mutableSetOf()
     private lateinit var currentWord: String
-
-    init {
-        resetGame()
-    }
 
     /*
      * Re-initializes the game data to restart the game.
@@ -139,4 +154,6 @@ class GameViewModel : ViewModel() {
             shuffleCurrentWord(currentWord)
         }
     }
+
+
 }

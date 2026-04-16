@@ -41,8 +41,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -57,11 +60,20 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.unscramble.R
 import com.example.unscramble.ui.theme.UnscrambleTheme
+import androidx.compose.runtime.setValue
 
 @Composable
 fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
     val gameUiState by gameViewModel.uiState.collectAsState()
     val mediumPadding = dimensionResource(R.dimen.padding_medium)
+
+    val context = LocalContext.current
+
+    var newWord by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        gameViewModel.initRepository(context)
+    }
 
     Column(
         modifier = Modifier
@@ -119,6 +131,34 @@ fun GameScreen(gameViewModel: GameViewModel = viewModel()) {
         }
 
         GameStatus(score = gameUiState.score, modifier = Modifier.padding(20.dp))
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(mediumPadding),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            OutlinedTextField(
+                value = newWord,
+                onValueChange = { newWord = it },
+                label = { Text("Tambah Kata Baru") },
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            Button(
+                onClick = {
+                    if (newWord.isNotBlank()) {
+                        gameViewModel.addNewWord(newWord)
+                        newWord = ""
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text("Simpan Kata")
+            }
+        }
 
         if (gameUiState.isGameOver) {
             FinalScoreDialog(

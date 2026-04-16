@@ -200,5 +200,9 @@ val allWords: Set<String> =
         "zigzag",
         "zoology",
         "zone",
-        "zeal"
+        "zeal",
+        "rusdi",
+        "pahce",
+        "Kecap",
+
     )
